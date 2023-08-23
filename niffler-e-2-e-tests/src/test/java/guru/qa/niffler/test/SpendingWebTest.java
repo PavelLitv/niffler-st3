@@ -8,9 +8,11 @@ import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.pages.MainPage;
 import guru.qa.niffler.pages.WelcomePage;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class SpendingWebTest {
+@Disabled
+public class SpendingWebTest extends BaseWebTest{
 
     private static final String username = "dima";
     private static final String password = "12345";
