@@ -57,6 +57,11 @@ public class MainPage {
                 .shouldHave(CollectionCondition.size(1));
     }
 
+    @Step("Verify block statistics is present")
+    public void statisticsIsPresent() {
+        $(".main-content__section-stats").should(visible);
+    }
+
     private SelenideElement getRowWithSpending(String containsText) {
         return $(".spendings__content tbody")
                 .$$("tr")
