@@ -3,6 +3,7 @@ package guru.qa.niffler.db.dao;
 import guru.qa.niffler.db.DataSourceProvider;
 import guru.qa.niffler.db.ServiceDB;
 import guru.qa.niffler.db.model.Authority;
+import guru.qa.niffler.db.model.AuthorityEntity;
 import guru.qa.niffler.db.model.CurrencyValues;
 import guru.qa.niffler.db.model.UserEntity;
 
@@ -104,7 +105,7 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public int updateUser(UserEntity user) {
+    public UserEntity updateUser(UserEntity user) {
         try (Connection conn = authDs.getConnection();
              PreparedStatement usersPs = conn.prepareStatement(
                      "UPDATE users SET " +
@@ -122,33 +123,42 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
             usersPs.setBoolean(5, user.getCredentialsNonExpired());
             usersPs.setObject(6, user.getId());
             usersPs.executeUpdate();
-            return 0;
+            return getUserById(user.getId());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     @Override
     public UserEntity getUserById(UUID userId) {
         UserEntity user = new UserEntity();
-
         try (Connection conn = authDs.getConnection();
-             PreparedStatement usersPs = conn.prepareStatement(
-                     "SELECT * FROM users WHERE id = ?")) {
-
+             PreparedStatement usersPs = conn.prepareStatement("SELECT * FROM users WHERE id = ?");
+             PreparedStatement authorityPs = conn.prepareStatement("SELECT * FROM authorities WHERE user_id = ?")) {
             usersPs.setObject(1, userId);
             usersPs.execute();
-            ResultSet result = usersPs.getResultSet();
 
-            if (result.next()) {
+            authorityPs.setObject(1, userId);
+            authorityPs.execute();
+
+            ResultSet resultUsers = usersPs.getResultSet();
+            if (resultUsers.next()) {
                 user.setId(userId);
-                user.setUsername(result.getString("username"));
-                user.setPassword(result.getString("password"));
-                user.setEnabled(result.getBoolean("enabled"));
-                user.setAccountNonExpired(result.getBoolean("account_non_expired"));
-                user.setAccountNonLocked(result.getBoolean("account_non_locked"));
-                user.setCredentialsNonExpired(result.getBoolean("credentials_non_expired"));
+                user.setUsername(resultUsers.getString("username"));
+                user.setPassword(resultUsers.getString("password"));
+                user.setEnabled(resultUsers.getBoolean("enabled"));
+                user.setAccountNonExpired(resultUsers.getBoolean("account_non_expired"));
+                user.setAccountNonLocked(resultUsers.getBoolean("account_non_locked"));
+                user.setCredentialsNonExpired(resultUsers.getBoolean("credentials_non_expired"));
+            }
+
+            ResultSet resultAuthorities = authorityPs.getResultSet();
+            while (resultAuthorities.next()) {
+                AuthorityEntity authorityEntity = new AuthorityEntity();
+                authorityEntity.setId((UUID) resultAuthorities.getObject("id"));
+                authorityEntity.setAuthority(Authority.valueOf(resultAuthorities.getString("authority")));
+                authorityEntity.setUser(user);
+                user.getAuthorities().add(authorityEntity);
             }
             return user;
         } catch (SQLException e) {

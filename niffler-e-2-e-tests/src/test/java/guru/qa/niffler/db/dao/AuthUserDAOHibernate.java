@@ -17,8 +17,8 @@ public class AuthUserDAOHibernate implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public int updateUser(UserEntity user) {
-        return 0;
+    public UserEntity updateUser(UserEntity user) {
+        return null;
     }
 
     @Override

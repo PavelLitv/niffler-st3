@@ -6,6 +6,7 @@ import guru.qa.niffler.db.dao.UserDataUserDAO;
 import guru.qa.niffler.db.model.Authority;
 import guru.qa.niffler.db.model.AuthorityEntity;
 import guru.qa.niffler.db.model.UserEntity;
+import guru.qa.niffler.util.RandomData;
 import io.qameta.allure.AllureId;
 import org.junit.jupiter.api.extension.*;
 
@@ -21,10 +22,9 @@ public class UserEntityExtension implements BeforeEachCallback, ParameterResolve
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        DBUser annotation = context.getRequiredTestMethod().getAnnotation(DBUser.class);
         UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(annotation.username());
-        userEntity.setPassword(annotation.password());
+        userEntity.setUsername(RandomData.getName());
+        userEntity.setPassword(RandomData.getPassword());
         userEntity.setEnabled(true);
         userEntity.setAccountNonLocked(true);
         userEntity.setAccountNonExpired(true);
