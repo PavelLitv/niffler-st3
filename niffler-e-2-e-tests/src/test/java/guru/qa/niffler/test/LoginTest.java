@@ -11,10 +11,7 @@ import org.junit.jupiter.api.Test;
 
 public class LoginTest extends BaseWebTest {
 
-    @DBUser(
-            username = "Pavel_3",
-            password = "12345"
-    )
+    @DBUser
     @AllureId("110")
     @Test
     void mainPageShouldBeVisibleAfterLogin(UserEntity user) {
@@ -25,10 +22,7 @@ public class LoginTest extends BaseWebTest {
                 .statisticsIsPresent();
     }
 
-    @DBUser(
-            username = "Pavel_4",
-            password = "12345"
-    )
+    @DBUser
     @AllureId("111")
     @Test
     void verifyMethodUpdateUserDB(UserEntity user) {
@@ -43,10 +37,7 @@ public class LoginTest extends BaseWebTest {
                 .statisticsIsPresent();
     }
 
-    @DBUser(
-            username = "Pavel_5",
-            password = "12345"
-    )
+    @DBUser
     @AllureId("112")
     @Test
     void verifyMethodGetUserDB(UserEntity user) {
