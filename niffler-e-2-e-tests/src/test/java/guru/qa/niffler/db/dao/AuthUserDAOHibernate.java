@@ -1,6 +1,8 @@
 package guru.qa.niffler.db.dao;
 
+import guru.qa.niffler.db.model.UserDataEntity;
 import guru.qa.niffler.db.model.UserEntity;
+import guru.qa.niffler.model.UserJson;
 
 import java.util.UUID;
 
@@ -34,5 +36,15 @@ public class AuthUserDAOHibernate implements AuthUserDAO, UserDataUserDAO {
     @Override
     public void deleteUserByNameInUserData(String username) {
 
+    }
+
+    @Override
+    public void updateUserByNameInUserData(UserJson userJson) {
+
+    }
+
+    @Override
+    public UserDataEntity getUserByNameInUserData(String username) {
+        return null;
     }
 }

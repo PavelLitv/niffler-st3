@@ -103,9 +103,7 @@ public class UserQueueExtension implements BeforeEachCallback, AfterTestExecutio
 
     private Map<String, UserType> getUsersFromContext(ExtensionContext context) {
         Map<String, UserType> candidatesForTest = new HashMap<>();
-        if (getUsersFromBeforeEach(context) != null) {
-            candidatesForTest.putAll(getUsersFromBeforeEach(context));
-        }
+        candidatesForTest.putAll(getUsersFromBeforeEach(context));
         candidatesForTest.putAll(getUsersFromTestMethod(context));
 
         return candidatesForTest;
@@ -126,7 +124,7 @@ public class UserQueueExtension implements BeforeEachCallback, AfterTestExecutio
             parameters = beforeEach.get().getParameters();
             return getUsersFromParams(parameters);
         } else {
-            return null;
+            return new HashMap<>();
         }
     }
 

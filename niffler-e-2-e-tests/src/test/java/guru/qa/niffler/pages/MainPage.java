@@ -42,12 +42,12 @@ public class MainPage {
         return new AllPeoplePage();
     }
 
-    @Step("Verify spending is present")
-    public void spendingIsPresent(String containsText, boolean isPresent) {
+    @Step("Verify spending {spendName} is present, expected result - {isPresent}")
+    public void spendingIsPresent(String spendName, boolean isPresent) {
         if (isPresent) {
-            getRowWithSpending(containsText).should(exist);
+            getRowWithSpending(spendName).should(exist);
         } else {
-            getRowWithSpending(containsText).should(not(exist));
+            getRowWithSpending(spendName).should(not(exist));
         }
     }
 

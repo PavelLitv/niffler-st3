@@ -6,7 +6,9 @@ import guru.qa.niffler.db.mapper.AuthorityEntityRowMapper;
 import guru.qa.niffler.db.mapper.UserEntityRowMapper;
 import guru.qa.niffler.db.model.Authority;
 import guru.qa.niffler.db.model.CurrencyValues;
+import guru.qa.niffler.db.model.UserDataEntity;
 import guru.qa.niffler.db.model.UserEntity;
+import guru.qa.niffler.model.UserJson;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -134,5 +136,15 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
         userDataJdbcTemplate.update(
                 "DELETE FROM users WHERE username = ?", username
         );
+    }
+
+    @Override
+    public void updateUserByNameInUserData(UserJson userJson) {
+
+    }
+
+    @Override
+    public UserDataEntity getUserByNameInUserData(String username) {
+        return null;
     }
 }

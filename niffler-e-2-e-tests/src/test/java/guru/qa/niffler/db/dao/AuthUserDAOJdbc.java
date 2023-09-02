@@ -2,10 +2,8 @@ package guru.qa.niffler.db.dao;
 
 import guru.qa.niffler.db.DataSourceProvider;
 import guru.qa.niffler.db.ServiceDB;
-import guru.qa.niffler.db.model.Authority;
-import guru.qa.niffler.db.model.AuthorityEntity;
-import guru.qa.niffler.db.model.CurrencyValues;
-import guru.qa.niffler.db.model.UserEntity;
+import guru.qa.niffler.db.model.*;
+import guru.qa.niffler.model.UserJson;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -21,7 +19,7 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
 
     @Override
     public int createUser(UserEntity user) {
-        int createdRows = 0;
+        int createdRows;
         try (Connection conn = authDs.getConnection()) {
 
             conn.setAutoCommit(false);
@@ -62,11 +60,12 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
                 authorityPs.executeBatch();
                 user.setId(generatedUserId);
                 conn.commit();
-                conn.setAutoCommit(true);
             } catch (SQLException e) {
                 conn.rollback();
+                throw new SQLException(e);
+            }
+            finally {
                 conn.setAutoCommit(true);
-                System.out.println(e.getMessage());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -93,11 +92,12 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
                 usersPs.executeUpdate();
 
                 conn.commit();
-                conn.setAutoCommit(true);
             } catch (SQLException e) {
                 conn.rollback();
+                throw new SQLException(e);
+            }
+            finally {
                 conn.setAutoCommit(true);
-                System.out.println(e.getMessage());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -112,7 +112,7 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
                              "password = ?, " +
                              "enabled = ?, " +
                              "account_non_expired = ?, " +
-                             " account_non_locked = ? , " +
+                             "account_non_locked = ? , " +
                              "credentials_non_expired = ? " +
                              "WHERE id = ? ")) {
 
@@ -136,12 +136,11 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
              PreparedStatement usersPs = conn.prepareStatement("SELECT * FROM users WHERE id = ?");
              PreparedStatement authorityPs = conn.prepareStatement("SELECT * FROM authorities WHERE user_id = ?")) {
             usersPs.setObject(1, userId);
-            usersPs.execute();
+            ResultSet resultUsers = usersPs.executeQuery();
 
             authorityPs.setObject(1, userId);
-            authorityPs.execute();
+            ResultSet resultAuthorities = authorityPs.executeQuery();
 
-            ResultSet resultUsers = usersPs.getResultSet();
             if (resultUsers.next()) {
                 user.setId(userId);
                 user.setUsername(resultUsers.getString("username"));
@@ -152,7 +151,6 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
                 user.setCredentialsNonExpired(resultUsers.getBoolean("credentials_non_expired"));
             }
 
-            ResultSet resultAuthorities = authorityPs.getResultSet();
             while (resultAuthorities.next()) {
                 AuthorityEntity authorityEntity = new AuthorityEntity();
                 authorityEntity.setId((UUID) resultAuthorities.getObject("id"));
@@ -168,7 +166,7 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
 
     @Override
     public int createUserInUserData(UserEntity user) {
-        int createdRows = 0;
+        int createdRows;
         try (Connection conn = userdataDs.getConnection()) {
             try (PreparedStatement usersPs = conn.prepareStatement(
                     "INSERT INTO users (username, currency) " +
@@ -195,6 +193,50 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
                 usersPs.setString(1, username);
                 usersPs.executeUpdate();
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateUserByNameInUserData(UserJson userJson) {
+        try (Connection conn = userdataDs.getConnection();
+             PreparedStatement usersPs = conn.prepareStatement(
+                     "UPDATE users SET " +
+                             "currency = ?, " +
+                             "firstname = ?, " +
+                             "surname = ?, " +
+                             "photo = ? " +
+                             "WHERE username = ?")) {
+
+            usersPs.setString(1, userJson.getCurrency().name());
+            usersPs.setString(2, userJson.getFirstname());
+            usersPs.setString(3, userJson.getSurname());
+            usersPs.setObject(4, userJson.getPhoto().getBytes());
+            usersPs.setString(5, userJson.getUsername());
+
+            usersPs.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public UserDataEntity getUserByNameInUserData(String username) {
+        UserDataEntity user = new UserDataEntity();
+        try (Connection conn = userdataDs.getConnection();
+             PreparedStatement usersPs = conn.prepareStatement("SELECT * FROM users WHERE username = ?")) {
+            usersPs.setObject(1, username);
+            ResultSet resultUser = usersPs.executeQuery();
+            if (resultUser.next()) {
+                user.setId(resultUser.getObject("id", UUID.class));
+                user.setUsername(resultUser.getString("username"));
+                user.setCurrency(CurrencyValues.valueOf(resultUser.getString("currency")));
+                user.setFirstname(resultUser.getString("firstname"));
+                user.setSurname(resultUser.getString("surname"));
+                user.setPhoto(resultUser.getBytes("photo"));
+            }
+            return user;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

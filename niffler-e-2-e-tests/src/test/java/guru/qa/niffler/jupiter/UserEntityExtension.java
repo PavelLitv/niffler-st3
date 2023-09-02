@@ -1,7 +1,6 @@
 package guru.qa.niffler.jupiter;
 
 import guru.qa.niffler.db.dao.AuthUserDAO;
-import guru.qa.niffler.db.dao.AuthUserDAOJdbc;
 import guru.qa.niffler.db.dao.UserDataUserDAO;
 import guru.qa.niffler.db.model.Authority;
 import guru.qa.niffler.db.model.AuthorityEntity;
@@ -14,32 +13,35 @@ import java.util.Arrays;
 
 public class UserEntityExtension implements BeforeEachCallback, ParameterResolver, AfterTestExecutionCallback {
 
-    private static AuthUserDAO authUserDAO = new AuthUserDAOJdbc();
+    private static AuthUserDAO authUserDAO = AuthUserDAO.getInstance();
 
-    private static UserDataUserDAO userDataUserDAO = new AuthUserDAOJdbc();
+    private static UserDataUserDAO userDataUserDAO = UserDataUserDAO.getInstance();
 
     public static ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserEntityExtension.class);
 
     @Override
     public void beforeEach(ExtensionContext context) {
+        DBUser annotation = context.getRequiredTestMethod().getAnnotation(DBUser.class);
         UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(RandomData.getName());
-        userEntity.setPassword(RandomData.getPassword());
-        userEntity.setEnabled(true);
-        userEntity.setAccountNonLocked(true);
-        userEntity.setAccountNonExpired(true);
-        userEntity.setCredentialsNonExpired(true);
-        userEntity.setAuthorities(Arrays.stream(Authority.values()).map(
-                authority -> {
-                    AuthorityEntity ae = new AuthorityEntity();
-                    ae.setAuthority(authority);
-                    return ae;
-                }
-        ).toList());
+        if(annotation != null){
+            userEntity.setUsername(annotation.username().equals("") ? RandomData.getName() : annotation.username());
+            userEntity.setPassword(annotation.password().equals("") ? RandomData.getPassword() : annotation.password());
+            userEntity.setEnabled(true);
+            userEntity.setAccountNonLocked(true);
+            userEntity.setAccountNonExpired(true);
+            userEntity.setCredentialsNonExpired(true);
+            userEntity.setAuthorities(Arrays.stream(Authority.values()).map(
+                    authority -> {
+                        AuthorityEntity ae = new AuthorityEntity();
+                        ae.setAuthority(authority);
+                        return ae;
+                    }
+            ).toList());
 
-        context.getStore(NAMESPACE).put(getAllureId(context), userEntity);
-        authUserDAO.createUser(userEntity);
-        userDataUserDAO.createUserInUserData(userEntity);
+            authUserDAO.createUser(userEntity);
+            userDataUserDAO.createUserInUserData(userEntity);
+            context.getStore(NAMESPACE).put(getAllureId(context), userEntity);
+        }
     }
 
     @Override

@@ -7,11 +7,10 @@ import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.pages.MainPage;
 import guru.qa.niffler.pages.WelcomePage;
+import io.qameta.allure.AllureId;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
 public class SpendingWebTest extends BaseWebTest{
 
     private static final String username = "dima";
@@ -34,7 +33,6 @@ public class SpendingWebTest extends BaseWebTest{
             username = username,
             category = category
     )
-
     @Spend(
             username = username,
             description = "Рыбалка на Ладоге",
@@ -42,8 +40,8 @@ public class SpendingWebTest extends BaseWebTest{
             amount = 14000.00,
             currency = CurrencyValues.RUB
     )
-
     @Test
+    @AllureId("100")
     void spendingShouldBeDeletedAfterDeleteAction(SpendJson createdSpend) {
         new MainPage()
                 .selectSpending(createdSpend.getDescription())

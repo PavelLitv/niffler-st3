@@ -11,4 +11,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(UserEntityExtension.class)
 public @interface DBUser {
+
+    String username() default "";
+
+    String password() default "";
 }
