@@ -3,6 +3,7 @@ package guru.qa.niffler.db.dao;
 import guru.qa.niffler.db.DataSourceProvider;
 import guru.qa.niffler.db.ServiceDB;
 import guru.qa.niffler.db.mapper.AuthorityEntityRowMapper;
+import guru.qa.niffler.db.mapper.UserDataEntityRowMapper;
 import guru.qa.niffler.db.mapper.UserEntityRowMapper;
 import guru.qa.niffler.db.model.Authority;
 import guru.qa.niffler.db.model.CurrencyValues;
@@ -58,6 +59,7 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
                 return ps;
             }, kh);
             UUID userId = (UUID) kh.getKeyList().get(0).get("id");
+            user.setId(userId);
             authJdbcTemplate.batchUpdate(
                     "INSERT INTO authorities (user_id, authority) VALUES (?, ?)",
                     new BatchPreparedStatementSetter() {
@@ -139,12 +141,27 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public void updateUserByNameInUserData(UserJson userJson) {
-
+    public void updateUserByNameInUserData(UserJson user) {
+        userDataJdbcTemplate.update("UPDATE users SET " +
+                        "currency = ?, " +
+                        "firstname = ?, " +
+                        "surname = ?, " +
+                        "photo = ? " +
+                        "WHERE username = ?",
+                user.getCurrency().name(),
+                user.getFirstname(),
+                user.getSurname(),
+                user.getPhoto().getBytes(),
+                user.getUsername()
+        );
     }
 
     @Override
     public UserDataEntity getUserByNameInUserData(String username) {
-        return null;
+        return userDataJdbcTemplate.queryForObject(
+                "SELECT * FROM users WHERE username = ?",
+                UserDataEntityRowMapper.instance,
+                username
+        );
     }
 }
