@@ -1,13 +1,13 @@
 package guru.qa.niffler.test;
 
-import guru.qa.niffler.jupiter.User;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.pages.WelcomePage;
 import io.qameta.allure.AllureId;
 import org.junit.jupiter.api.Test;
 
-import static guru.qa.niffler.jupiter.User.UserType.INVITATION_RECEIVED;
-import static guru.qa.niffler.jupiter.User.UserType.INVITATION_SENT;
+import static guru.qa.niffler.jupiter.annotation.User.UserType.INVITATION_RECEIVED;
+import static guru.qa.niffler.jupiter.annotation.User.UserType.INVITATION_SENT;
 
 public class InvitationWebTest extends BaseWebTest{
 

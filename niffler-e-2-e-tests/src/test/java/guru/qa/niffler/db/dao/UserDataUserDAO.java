@@ -1,29 +1,30 @@
 package guru.qa.niffler.db.dao;
 
-import guru.qa.niffler.db.model.UserDataEntity;
-import guru.qa.niffler.db.model.UserEntity;
-import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.db.dao.impl.AuthUserDAOSpringJdbc;
+import guru.qa.niffler.db.dao.impl.UserdataUserDAOHibernate;
+import guru.qa.niffler.db.model.userdata.UserDataUserEntity;
 
 public interface UserDataUserDAO {
 
     static UserDataUserDAO getInstance() {
         UserDataUserDAO dao;
         if ("hibernate".equals(System.getProperty("db.impl"))) {
-            dao = new AuthUserDAOHibernate();
+            dao = new UserdataUserDAOHibernate();
         } else if ("spring".equals(System.getProperty("db.impl"))) {
             dao = new AuthUserDAOSpringJdbc();
         } else {
-            dao = new AuthUserDAOJdbc();
+            dao = new UserdataUserDAOHibernate();
+//            dao = new AuthUserDAOJdbc();
         }
 
         return dao;
     }
 
-    int createUserInUserData(UserEntity user);
+    int createUserInUserData(UserDataUserEntity userdata);
 
-    void deleteUserByNameInUserData(String username);
+    void deleteUserByNameInUserData(UserDataUserEntity userdata);
 
-    void updateUserByNameInUserData(UserJson userJson);
+    void updateUserByNameInUserData(UserDataUserEntity userdata);
 
-    UserDataEntity getUserByNameInUserData(String username);
+    UserDataUserEntity getUserByNameInUserData(String username);
 }

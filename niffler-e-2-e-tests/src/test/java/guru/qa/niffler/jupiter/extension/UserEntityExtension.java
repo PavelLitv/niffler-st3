@@ -1,10 +1,13 @@
-package guru.qa.niffler.jupiter;
+package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.db.dao.AuthUserDAO;
 import guru.qa.niffler.db.dao.UserDataUserDAO;
-import guru.qa.niffler.db.model.Authority;
-import guru.qa.niffler.db.model.AuthorityEntity;
-import guru.qa.niffler.db.model.UserEntity;
+import guru.qa.niffler.db.model.auth.AuthUserEntity;
+import guru.qa.niffler.db.model.auth.Authority;
+import guru.qa.niffler.db.model.auth.AuthorityEntity;
+import guru.qa.niffler.db.model.userdata.UserDataUserEntity;
+import guru.qa.niffler.jupiter.annotation.DBUser;
+import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.util.RandomData;
 import io.qameta.allure.AllureId;
 import org.junit.jupiter.api.extension.*;
@@ -22,10 +25,10 @@ public class UserEntityExtension implements BeforeEachCallback, ParameterResolve
     @Override
     public void beforeEach(ExtensionContext context) {
         DBUser annotation = context.getRequiredTestMethod().getAnnotation(DBUser.class);
-        UserEntity userEntity = new UserEntity();
+        AuthUserEntity userEntity = new AuthUserEntity();
         if(annotation != null){
             userEntity.setUsername(annotation.username().equals("") ? RandomData.getName() : annotation.username());
-            userEntity.setPassword(annotation.password().equals("") ? RandomData.getPassword() : annotation.password());
+            userEntity.setPasswordUnEncoded(annotation.password().equals("") ? RandomData.getPassword() : annotation.password());
             userEntity.setEnabled(true);
             userEntity.setAccountNonLocked(true);
             userEntity.setAccountNonExpired(true);
@@ -34,13 +37,20 @@ public class UserEntityExtension implements BeforeEachCallback, ParameterResolve
                     authority -> {
                         AuthorityEntity ae = new AuthorityEntity();
                         ae.setAuthority(authority);
+                        ae.setUser(userEntity);
                         return ae;
                     }
             ).toList());
 
             authUserDAO.createUser(userEntity);
-            userDataUserDAO.createUserInUserData(userEntity);
-            context.getStore(NAMESPACE).put(getAllureId(context), userEntity);
+
+            UserDataUserEntity userData = new UserDataUserEntity();
+            userData.setUsername(userEntity.getUsername());
+            userData.setCurrency(CurrencyValues.RUB);
+            userDataUserDAO.createUserInUserData(userData);
+
+            context.getStore(NAMESPACE).put(getAllureId(context) + AuthUserEntity.class, userEntity);
+            context.getStore(NAMESPACE).put(getAllureId(context) + UserDataUserEntity.class, userData);
         }
     }
 
@@ -49,19 +59,20 @@ public class UserEntityExtension implements BeforeEachCallback, ParameterResolve
         return parameterContext
                 .getParameter()
                 .getType()
-                .isAssignableFrom(UserEntity.class);
+                .isAssignableFrom(AuthUserEntity.class);
     }
 
     @Override
-    public UserEntity resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return extensionContext.getStore(NAMESPACE).get(getAllureId(extensionContext), UserEntity.class);
+    public AuthUserEntity resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return extensionContext.getStore(NAMESPACE).get(getAllureId(extensionContext) + AuthUserEntity.class, AuthUserEntity.class);
     }
 
     @Override
     public void afterTestExecution(ExtensionContext context) {
-        UserEntity userFromTest = context.getStore(NAMESPACE).get(getAllureId(context), UserEntity.class);
-        authUserDAO.deleteUserById(userFromTest.getId());
-        userDataUserDAO.deleteUserByNameInUserData(userFromTest.getUsername());
+        AuthUserEntity userFromTest = context.getStore(NAMESPACE).get(getAllureId(context) + AuthUserEntity.class, AuthUserEntity.class);
+        UserDataUserEntity userDataFromTest = context.getStore(NAMESPACE).get(getAllureId(context) + UserDataUserEntity.class, UserDataUserEntity.class);
+        authUserDAO.deleteUser(userFromTest);
+        userDataUserDAO.deleteUserByNameInUserData(userDataFromTest);
     }
 
     private String getAllureId(ExtensionContext context) {

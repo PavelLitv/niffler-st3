@@ -1,15 +1,15 @@
-package guru.qa.niffler.db.dao;
+package guru.qa.niffler.db.dao.impl;
 
-import guru.qa.niffler.db.DataSourceProvider;
+import guru.qa.niffler.db.jdbc.DataSourceProvider;
 import guru.qa.niffler.db.ServiceDB;
-import guru.qa.niffler.db.mapper.AuthorityEntityRowMapper;
-import guru.qa.niffler.db.mapper.UserDataEntityRowMapper;
-import guru.qa.niffler.db.mapper.UserEntityRowMapper;
-import guru.qa.niffler.db.model.Authority;
-import guru.qa.niffler.db.model.CurrencyValues;
-import guru.qa.niffler.db.model.UserDataEntity;
-import guru.qa.niffler.db.model.UserEntity;
-import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.db.dao.AuthUserDAO;
+import guru.qa.niffler.db.dao.UserDataUserDAO;
+import guru.qa.niffler.db.sjdbc.AuthUserEntityRowMapper;
+import guru.qa.niffler.db.sjdbc.AuthorityEntityRowMapper;
+import guru.qa.niffler.db.sjdbc.UserDataUserEntityRowMapper;
+import guru.qa.niffler.db.model.auth.AuthUserEntity;
+import guru.qa.niffler.db.model.auth.Authority;
+import guru.qa.niffler.db.model.userdata.UserDataUserEntity;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -44,14 +44,14 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public int createUser(UserEntity user) {
+    public int createUser(AuthUserEntity user) {
         return authTtpl.execute(status -> {
             KeyHolder kh = new GeneratedKeyHolder();
             authJdbcTemplate.update(con -> {
                 PreparedStatement ps = con.prepareStatement("INSERT INTO users (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired) " +
                         "VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, user.getUsername());
-                ps.setString(2, pe.encode(user.getPassword()));
+                ps.setString(2, user.getPassword());
                 ps.setBoolean(3, user.getEnabled());
                 ps.setBoolean(4, user.getAccountNonExpired());
                 ps.setBoolean(5, user.getAccountNonLocked());
@@ -79,16 +79,16 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public void deleteUserById(UUID userId) {
+    public void deleteUser(AuthUserEntity user) {
         authTtpl.execute(status -> {
             authJdbcTemplate.update(con -> {
                 PreparedStatement authorityPs = con.prepareStatement("DELETE from authorities WHERE user_id = ?");
-                authorityPs.setObject(1, userId);
+                authorityPs.setObject(1, user.getId());
                 return authorityPs;
             });
             authJdbcTemplate.update(con -> {
                 PreparedStatement usersPs = con.prepareStatement("DELETE from users WHERE id = ?");
-                usersPs.setObject(1, userId);
+                usersPs.setObject(1, user.getId());
                 return usersPs;
             });
             return 0;
@@ -96,21 +96,21 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public UserEntity updateUser(UserEntity user) {
+    public AuthUserEntity updateUser(AuthUserEntity user) {
         authJdbcTemplate.update("UPDATE users SET password = ?, enabled = ?, account_non_expired = ?," +
                         "account_non_locked = ? WHERE id = ?",
-                pe.encode(user.getPassword()), user.getEnabled(), user.getAccountNonExpired(),
+                user.getPassword(), user.getEnabled(), user.getAccountNonExpired(),
                 user.getAccountNonLocked(), user.getId()
         );
         return getUserById(user.getId());
     }
 
     @Override
-    public UserEntity getUserById(UUID userId) {
-        UserEntity user =
+    public AuthUserEntity getUserById(UUID userId) {
+        AuthUserEntity user =
                 authJdbcTemplate.queryForObject(
                         "SELECT * FROM users WHERE id = ?",
-                        UserEntityRowMapper.instance,
+                        AuthUserEntityRowMapper.instance,
                         userId
                 );
         user.setAuthorities(
@@ -126,41 +126,41 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public int createUserInUserData(UserEntity user) {
+    public int createUserInUserData(UserDataUserEntity userdata) {
         return userDataJdbcTemplate.update(
                 "INSERT INTO users (username, currency) VALUES (?, ?)",
-                user.getUsername(), CurrencyValues.RUB.name()
+                userdata.getUsername(), userdata.getCurrency().name()
         );
     }
 
     @Override
-    public void deleteUserByNameInUserData(String username) {
+    public void deleteUserByNameInUserData(UserDataUserEntity userData) {
         userDataJdbcTemplate.update(
-                "DELETE FROM users WHERE username = ?", username
+                "DELETE FROM users WHERE username = ?", userData.getUsername()
         );
     }
 
     @Override
-    public void updateUserByNameInUserData(UserJson user) {
+    public void updateUserByNameInUserData(UserDataUserEntity userdata) {
         userDataJdbcTemplate.update("UPDATE users SET " +
                         "currency = ?, " +
                         "firstname = ?, " +
                         "surname = ?, " +
                         "photo = ? " +
                         "WHERE username = ?",
-                user.getCurrency().name(),
-                user.getFirstname(),
-                user.getSurname(),
-                user.getPhoto().getBytes(),
-                user.getUsername()
+                userdata.getCurrency().name(),
+                userdata.getFirstname(),
+                userdata.getSurname(),
+                userdata.getPhoto(),
+                userdata.getUsername()
         );
     }
 
     @Override
-    public UserDataEntity getUserByNameInUserData(String username) {
+    public UserDataUserEntity getUserByNameInUserData(String username) {
         return userDataJdbcTemplate.queryForObject(
                 "SELECT * FROM users WHERE username = ?",
-                UserDataEntityRowMapper.instance,
+                UserDataUserEntityRowMapper.instance,
                 username
         );
     }

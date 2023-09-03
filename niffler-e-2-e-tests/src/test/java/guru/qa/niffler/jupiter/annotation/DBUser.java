@@ -1,6 +1,6 @@
-package guru.qa.niffler.jupiter;
+package guru.qa.niffler.jupiter.annotation;
 
-import guru.qa.niffler.model.CurrencyValues;
+import guru.qa.niffler.jupiter.extension.UserEntityExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.ElementType;
@@ -10,17 +10,10 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(SpendExtension.class)
-public @interface Spend {
+@ExtendWith(UserEntityExtension.class)
+public @interface DBUser {
 
-    String username();
+    String username() default "";
 
-    String description();
-
-    String category();
-
-    double amount();
-
-    CurrencyValues currency();
-
+    String password() default "";
 }

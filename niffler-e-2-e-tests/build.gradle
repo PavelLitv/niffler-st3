@@ -104,9 +104,13 @@ dependencies {
     }
     testImplementation "io.qameta.allure:allure-okhttp3:${allureVersion}"
     testImplementation "io.qameta.allure:allure-selenide:${allureVersion}"
-    testImplementation "io.qameta.allure:allure-grpc:${allureVersion}"
+    testImplementation ("io.qameta.allure:allure-grpc:${allureVersion}"){
+        exclude group: 'io.grpc'
+    }
     // WEB
-    testImplementation "com.codeborne:selenide:${selenideVersion}"
+    testImplementation ("com.codeborne:selenide:${selenideVersion}"){
+        exclude group: 'org.slf4j'
+    }
     // Utils
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
     testImplementation 'commons-io:commons-io:2.11.0'
@@ -126,7 +130,11 @@ dependencies {
     // Kafka
     testImplementation 'org.apache.kafka:kafka-clients:3.5.0'
     // Wiremock
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.0'
+    testImplementation ('com.github.tomakehurst:wiremock-jre8:2.35.0'){
+        exclude group: 'com.fasterxml.jackson.core'
+        exclude group: 'org.slf4j'
+        exclude group: 'org.apache.httpcomponents.client5'
+    }
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
 }
 
