@@ -1,28 +1,19 @@
-package guru.qa.niffler.jupiter;
+package guru.qa.niffler.jupiter.extension;
 
-import guru.qa.niffler.api.SpendService;
+import guru.qa.niffler.api.SpendServiceClient;
+import guru.qa.niffler.jupiter.annotation.Spend;
 import guru.qa.niffler.model.SpendJson;
-import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.extension.*;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.Date;
 
 public class SpendExtension implements BeforeEachCallback, ParameterResolver {
 
     public static ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendExtension.class);
-    private static final OkHttpClient httpClient = new OkHttpClient.Builder().build();
-    private static final Retrofit retrofit = new Retrofit.Builder()
-            .client(httpClient)
-            .baseUrl("http://127.0.0.1:8093")
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
-
-    private SpendService spendService = retrofit.create(SpendService.class);
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
+        SpendServiceClient spendService = new SpendServiceClient();
         Spend annotation = context.getRequiredTestMethod().getAnnotation(Spend.class);
         if (annotation != null) {
             SpendJson spend = new SpendJson();
@@ -33,7 +24,7 @@ public class SpendExtension implements BeforeEachCallback, ParameterResolver {
             spend.setSpendDate(new Date());
             spend.setCurrency(annotation.currency());
 
-            SpendJson createdSpend = spendService.addSpend(spend).execute().body();
+            SpendJson createdSpend = spendService.addSpend(spend);
             context.getStore(NAMESPACE).put("spend", createdSpend);
         }
     }
