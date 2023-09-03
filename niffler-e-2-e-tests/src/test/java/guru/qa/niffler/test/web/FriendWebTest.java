@@ -1,4 +1,4 @@
-package guru.qa.niffler.test;
+package guru.qa.niffler.test.web;
 
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.UserJson;
@@ -21,7 +21,7 @@ public class FriendWebTest extends BaseWebTest {
     }
 
     @Test
-    @AllureId("101")
+    @AllureId("200")
     void friendShouldBeDisplayedInFriendsPage() {
         new MainPage()
                 .goToFriendsPage()
@@ -29,7 +29,7 @@ public class FriendWebTest extends BaseWebTest {
     }
 
     @Test
-    @AllureId("102")
+    @AllureId("201")
     void friendShouldBeDisplayedInAllPeoplePage() {
         new MainPage()
                 .goToAllPeoplePage()

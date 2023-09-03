@@ -1,4 +1,4 @@
-package guru.qa.niffler.test;
+package guru.qa.niffler.test.web;
 
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.UserJson;
@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 import static guru.qa.niffler.jupiter.annotation.User.UserType.INVITATION_RECEIVED;
 import static guru.qa.niffler.jupiter.annotation.User.UserType.INVITATION_SENT;
 
-public class InvitationWebTest extends BaseWebTest{
+public class InvitationWebTest extends BaseWebTest {
 
     @Test
-    @AllureId("103")
+    @AllureId("300")
     void pendingInvitationShouldBeDisplayedInAllPeoplePage(@User(userType = INVITATION_SENT) UserJson userInvSent) {
         new WelcomePage()
                 .openPage()
@@ -23,7 +23,7 @@ public class InvitationWebTest extends BaseWebTest{
     }
 
     @Test
-    @AllureId("104")
+    @AllureId("301")
     void invitationReceivedShouldBeDisplayedInAllPeoplePage(@User(userType = INVITATION_RECEIVED) UserJson userInvRec) {
         new WelcomePage()
                 .openPage()
@@ -34,7 +34,7 @@ public class InvitationWebTest extends BaseWebTest{
     }
 
     @Test
-    @AllureId("105")
+    @AllureId("302")
     void invitationReceivedShouldBeDisplayedInFriendsPage(@User(userType = INVITATION_RECEIVED) UserJson userInvRec) {
         new WelcomePage()
                 .openPage()
@@ -45,7 +45,7 @@ public class InvitationWebTest extends BaseWebTest{
     }
 
     @Test
-    @AllureId("106")
+    @AllureId("303")
     void iconInvitationReceivedShouldBeDisplayedInMainPage(@User(userType = INVITATION_RECEIVED) UserJson userInvRec) {
         new WelcomePage()
                 .openPage()

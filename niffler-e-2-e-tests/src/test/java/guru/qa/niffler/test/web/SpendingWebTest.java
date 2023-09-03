@@ -1,6 +1,5 @@
-package guru.qa.niffler.test;
+package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.Configuration;
 import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.Spend;
 import guru.qa.niffler.model.CurrencyValues;
@@ -11,15 +10,11 @@ import io.qameta.allure.AllureId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SpendingWebTest extends BaseWebTest{
+public class SpendingWebTest extends BaseWebTest {
 
-    private static final String username = "dima";
+    private static final String username = "Pavel_1";
     private static final String password = "12345";
     private static final String category = "Рыбалка";
-
-    static {
-        Configuration.browserSize = "1980x1024";
-    }
 
     @BeforeEach
     void doLogin() {
