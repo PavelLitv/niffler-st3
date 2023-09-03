@@ -42,14 +42,14 @@ public class MethodDBTest {
     @Test
     void verifyMethodUpdateAndGetUserInUserDataDB(AuthUserEntity user) {
         UserDataUserDAO userdataDAO = UserDataUserDAO.getInstance();
-        UserDataUserEntity userData = userdataDAO.getUserByNameInUserData(user.getUsername());
+        UserDataUserEntity userData = userdataDAO.getUserDataByName(user.getUsername());
         userData.setCurrency(CurrencyValues.USD);
         userData.setFirstname("Pavel");
         userData.setSurname("Li");
         userData.setPhoto("its my photo jpg".getBytes());
-        userdataDAO.updateUserByNameInUserData(userData);
+        userdataDAO.updateUserData(userData);
 
-        UserDataUserEntity updated = userdataDAO.getUserByNameInUserData(user.getUsername());
+        UserDataUserEntity updated = userdataDAO.getUserDataByName(user.getUsername());
         Assertions.assertEquals(userData.getSurname(),updated.getSurname());
     }
 }

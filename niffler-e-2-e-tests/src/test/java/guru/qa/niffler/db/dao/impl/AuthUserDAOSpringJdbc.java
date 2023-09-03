@@ -79,16 +79,16 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public void deleteUser(AuthUserEntity user) {
+    public void deleteUserById(UUID userId) {
         authTtpl.execute(status -> {
             authJdbcTemplate.update(con -> {
                 PreparedStatement authorityPs = con.prepareStatement("DELETE from authorities WHERE user_id = ?");
-                authorityPs.setObject(1, user.getId());
+                authorityPs.setObject(1, userId);
                 return authorityPs;
             });
             authJdbcTemplate.update(con -> {
                 PreparedStatement usersPs = con.prepareStatement("DELETE from users WHERE id = ?");
-                usersPs.setObject(1, user.getId());
+                usersPs.setObject(1, userId);
                 return usersPs;
             });
             return 0;
@@ -134,14 +134,14 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public void deleteUserByNameInUserData(UserDataUserEntity userData) {
+    public void deleteUserDataByName(String username) {
         userDataJdbcTemplate.update(
-                "DELETE FROM users WHERE username = ?", userData.getUsername()
+                "DELETE FROM users WHERE username = ?", username
         );
     }
 
     @Override
-    public void updateUserByNameInUserData(UserDataUserEntity userdata) {
+    public void updateUserData(UserDataUserEntity userdata) {
         userDataJdbcTemplate.update("UPDATE users SET " +
                         "currency = ?, " +
                         "firstname = ?, " +
@@ -157,7 +157,7 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public UserDataUserEntity getUserByNameInUserData(String username) {
+    public UserDataUserEntity getUserDataByName(String username) {
         return userDataJdbcTemplate.queryForObject(
                 "SELECT * FROM users WHERE username = ?",
                 UserDataUserEntityRowMapper.instance,

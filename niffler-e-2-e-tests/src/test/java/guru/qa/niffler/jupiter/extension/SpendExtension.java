@@ -11,10 +11,9 @@ public class SpendExtension implements BeforeEachCallback, ParameterResolver {
 
     public static ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendExtension.class);
 
-    private SpendServiceClient spendService = new SpendServiceClient();
-
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
+        SpendServiceClient spendService = new SpendServiceClient();
         Spend annotation = context.getRequiredTestMethod().getAnnotation(Spend.class);
         if (annotation != null) {
             SpendJson spend = new SpendJson();

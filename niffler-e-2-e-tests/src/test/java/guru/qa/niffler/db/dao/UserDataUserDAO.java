@@ -22,9 +22,9 @@ public interface UserDataUserDAO {
 
     int createUserInUserData(UserDataUserEntity userdata);
 
-    void deleteUserByNameInUserData(UserDataUserEntity userdata);
+    void deleteUserDataByName(String username);
 
-    void updateUserByNameInUserData(UserDataUserEntity userdata);
+    void updateUserData(UserDataUserEntity userdata);
 
-    UserDataUserEntity getUserByNameInUserData(String username);
+    UserDataUserEntity getUserDataByName(String username);
 }

@@ -80,7 +80,7 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public void deleteUser(AuthUserEntity user) {
+    public void deleteUserById(UUID userId) {
         try (Connection conn = authDs.getConnection()) {
             conn.setAutoCommit(false);
 
@@ -90,8 +90,8 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
                  PreparedStatement authorityPs = conn.prepareStatement(
                          "DELETE from authorities WHERE user_id = ?")) {
 
-                usersPs.setObject(1, user.getId());
-                authorityPs.setObject(1, user.getId());
+                usersPs.setObject(1, userId);
+                authorityPs.setObject(1, userId);
 
                 authorityPs.executeUpdate();
                 usersPs.executeUpdate();
@@ -190,12 +190,12 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public void deleteUserByNameInUserData(UserDataUserEntity userData) {
+    public void deleteUserDataByName(String username) {
         try (Connection conn = userdataDs.getConnection()) {
             try (PreparedStatement usersPs = conn.prepareStatement(
                     "DELETE FROM users WHERE username = ?")) {
 
-                usersPs.setString(1, userData.getUsername());
+                usersPs.setString(1, username);
                 usersPs.executeUpdate();
             }
         } catch (SQLException e) {
@@ -204,7 +204,7 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public void updateUserByNameInUserData(UserDataUserEntity userdata) {
+    public void updateUserData(UserDataUserEntity userdata) {
         try (Connection conn = userdataDs.getConnection();
              PreparedStatement usersPs = conn.prepareStatement(
                      "UPDATE users SET " +
@@ -227,7 +227,7 @@ public class AuthUserDAOJdbc implements AuthUserDAO, UserDataUserDAO {
     }
 
     @Override
-    public UserDataUserEntity getUserByNameInUserData(String username) {
+    public UserDataUserEntity getUserDataByName(String username) {
         UserDataUserEntity user = new UserDataUserEntity();
         try (Connection conn = userdataDs.getConnection();
              PreparedStatement usersPs = conn.prepareStatement("SELECT * FROM users WHERE username = ?")) {

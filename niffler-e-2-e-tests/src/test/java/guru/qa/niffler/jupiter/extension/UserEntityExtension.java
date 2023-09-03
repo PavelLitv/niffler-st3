@@ -16,15 +16,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class UserEntityExtension implements BeforeEachCallback, ParameterResolver, AfterTestExecutionCallback {
-
-    private static AuthUserDAO authUserDAO = AuthUserDAO.getInstance();
-
-    private static UserDataUserDAO userDataUserDAO = UserDataUserDAO.getInstance();
-
     public static ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserEntityExtension.class);
 
     @Override
     public void beforeEach(ExtensionContext context) {
+        AuthUserDAO authUserDAO = AuthUserDAO.getInstance();
+        UserDataUserDAO userDataUserDAO = UserDataUserDAO.getInstance();
         DBUser annotation = context.getRequiredTestMethod().getAnnotation(DBUser.class);
         AuthUserEntity userEntity = new AuthUserEntity();
         if(annotation != null){
@@ -70,10 +67,12 @@ public class UserEntityExtension implements BeforeEachCallback, ParameterResolve
 
     @Override
     public void afterTestExecution(ExtensionContext context) {
+        AuthUserDAO authUserDAO = AuthUserDAO.getInstance();
+        UserDataUserDAO userDataUserDAO = UserDataUserDAO.getInstance();
         AuthUserEntity userFromTest = context.getStore(NAMESPACE).get(getAllureId(context) + AuthUserEntity.class, AuthUserEntity.class);
         UserDataUserEntity userDataFromTest = context.getStore(NAMESPACE).get(getAllureId(context) + UserDataUserEntity.class, UserDataUserEntity.class);
-        authUserDAO.deleteUser(userFromTest);
-        userDataUserDAO.deleteUserByNameInUserData(userDataFromTest);
+        authUserDAO.deleteUserById(userFromTest.getId());
+        userDataUserDAO.deleteUserDataByName(userDataFromTest.getUsername());
     }
 
     private String getAllureId(ExtensionContext context) {

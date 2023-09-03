@@ -19,17 +19,18 @@ public class UserdataUserDAOHibernate extends JpaService implements UserDataUser
     }
 
     @Override
-    public void deleteUserByNameInUserData(UserDataUserEntity user) {
-        remove(user);
+    public void deleteUserDataByName(String username) {
+        UserDataUserEntity userDataUserEntity = getUserDataByName(username);
+        remove(userDataUserEntity);
     }
 
     @Override
-    public void updateUserByNameInUserData(UserDataUserEntity userdata) {
+    public void updateUserData(UserDataUserEntity userdata) {
         merge(userdata);
     }
 
     @Override
-    public UserDataUserEntity getUserByNameInUserData(String username)
+    public UserDataUserEntity getUserDataByName(String username)
     {
         return em.createQuery("select u from UserDataUserEntity u where u.username=:username",
                         UserDataUserEntity.class)
