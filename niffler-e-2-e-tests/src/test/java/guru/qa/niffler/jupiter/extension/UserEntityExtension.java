@@ -12,6 +12,7 @@ import guru.qa.niffler.util.RandomData;
 import io.qameta.allure.AllureId;
 import org.junit.jupiter.api.extension.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class UserEntityExtension implements BeforeEachCallback, ParameterResolver, AfterTestExecutionCallback {
@@ -33,14 +34,14 @@ public class UserEntityExtension implements BeforeEachCallback, ParameterResolve
             userEntity.setAccountNonLocked(true);
             userEntity.setAccountNonExpired(true);
             userEntity.setCredentialsNonExpired(true);
-            userEntity.setAuthorities(Arrays.stream(Authority.values()).map(
+            userEntity.setAuthorities(new ArrayList<>(Arrays.stream(Authority.values()).map(
                     authority -> {
                         AuthorityEntity ae = new AuthorityEntity();
                         ae.setAuthority(authority);
                         ae.setUser(userEntity);
                         return ae;
                     }
-            ).toList());
+            ).toList()));
 
             authUserDAO.createUser(userEntity);
 

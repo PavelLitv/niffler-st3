@@ -41,17 +41,15 @@ public class MethodDBTest {
     @AllureId("110")
     @Test
     void verifyMethodUpdateAndGetUserInUserDataDB(AuthUserEntity user) {
-        UserDataUserEntity userData = new UserDataUserEntity();
-        userData.setUsername(user.getUsername());
+        UserDataUserDAO userdataDAO = UserDataUserDAO.getInstance();
+        UserDataUserEntity userData = userdataDAO.getUserByNameInUserData(user.getUsername());
         userData.setCurrency(CurrencyValues.USD);
         userData.setFirstname("Pavel");
         userData.setSurname("Li");
         userData.setPhoto("its my photo jpg".getBytes());
-
-        UserDataUserDAO userdataDAO = UserDataUserDAO.getInstance();
         userdataDAO.updateUserByNameInUserData(userData);
 
-        UserDataUserEntity getUser = userdataDAO.getUserByNameInUserData(user.getUsername());
-        Assertions.assertEquals(userData.getSurname(),getUser.getSurname());
+        UserDataUserEntity updated = userdataDAO.getUserByNameInUserData(user.getUsername());
+        Assertions.assertEquals(userData.getSurname(),updated.getSurname());
     }
 }
