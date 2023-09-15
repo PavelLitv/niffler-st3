@@ -7,11 +7,12 @@ import guru.qa.niffler.db.model.userdata.UserDataUserEntity;
 import guru.qa.niffler.jupiter.annotation.DBUser;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.pages.WelcomePage;
+import guru.qa.niffler.test.web.BaseWebTest;
 import io.qameta.allure.AllureId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class MethodDBTest {
+public class MethodDBTest extends BaseWebTest {
 
     @DBUser
     @AllureId("108")

@@ -13,4 +13,8 @@ public class RandomData {
     public static String getPassword(){
         return faker.internet().password();
     }
+
+    public static String getBeer(){
+        return faker.beer().name();
+    }
 }
